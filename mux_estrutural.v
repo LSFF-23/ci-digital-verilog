@@ -15,7 +15,6 @@ or O1(y, w1, w2);
 endmodule
 
 // mux_estrutural_tb.v
-
 module mux_tb;
 reg [1:0] D;
 reg sel;

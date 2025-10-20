@@ -10,7 +10,6 @@ assign y = !(a^b);
 endmodule
 
 // comparador2bits_tb.v
-
 module comparador_tb;
 reg [1:0] a, b;
 wire y;

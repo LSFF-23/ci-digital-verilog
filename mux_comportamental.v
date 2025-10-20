@@ -21,7 +21,6 @@ assign y = y_reg;
 endmodule
 
 // mux_comportamental_tb.v
-
 module mux_tb;
 reg [1:0] D;
 reg sel;

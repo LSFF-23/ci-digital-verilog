@@ -19,8 +19,6 @@ assign y = y_comp;
 endmodule
 
 // comparador2bits_tb.v
-`timescale 1ns/1ps
-
 module comparador_tb;
 reg [1:0] a, b;
 wire y;

@@ -11,7 +11,6 @@ assign y = (D[0] & !sel) | (D[1] & sel);
 endmodule
 
 // mux_rtl_tb.v
-
 module mux_tb;
 reg [1:0] D;
 reg sel;
