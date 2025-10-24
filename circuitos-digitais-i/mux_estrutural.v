@@ -7,8 +7,8 @@ output y;
 
 wire w1, w2, nsel;
 
-or N1(nsel, sel);
-and A1(w1, D[0], !sel);
+not N1(nsel, sel);
+and A1(w1, D[0], nsel);
 and A2(w2, D[1], sel);
 or O1(y, w1, w2);
 
