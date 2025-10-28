@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "run-verilog",
+            "type": "shell",
+            
+            // 1. Força o uso do cmd.exe, que é mais previsível com aspas
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/c" // Necessário para que o CMD execute uma string de comando e feche
+                    ]
+                }
+            },
+            
+            // 2. Comando: Usamos aspas DUPLAS (") para envolver os caminhos com variáveis
+            // do VS Code, e encadeamos os comandos com o operador '&&' do CMD.
+            "command": "iverilog -o \"${fileDirname}/${fileBasenameNoExtension}.out\" \"${file}\" && vvp \"${fileDirname}/${fileBasenameNoExtension}.out\"",
+            
+            "group": "build",
+            
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            
+            "problemMatcher": []
+        }
+    ]
+}
