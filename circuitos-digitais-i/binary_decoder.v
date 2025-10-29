@@ -15,9 +15,6 @@ parameter N = 4;
 parameter M = 2 ** N;
 reg [N-1:0] in;
 wire [M-1:0] out;
-integer pot2;
-
-genvar i;
 
 binary_decoder#(N) dut (in, out);
 
