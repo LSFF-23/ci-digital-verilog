@@ -1,17 +1,3 @@
-module adder1digit (a, b, cin, s, cout);
-input [3:0] a, b;
-input cin;
-output [3:0] s;
-output cout;
-wire [4:0] partial_sum1, partial_sum2;
-
-assign partial_sum1 = a + b + cin;
-assign partial_sum2 = (partial_sum1 > 9)?(partial_sum1 + 6):(partial_sum1);
-assign s = partial_sum2[3:0];
-assign cout = partial_sum2[4];
-
-endmodule
-
 module adder3digit (a, b, cin, s, cout);
 input [11:0] a, b;
 input cin;
@@ -36,7 +22,11 @@ adder3digit dut (a, b, cin, s, cout);
 
 initial begin
     $display("       a       |        b       | cin | cout |       s     ");
-    $monitor("%b_%b_%b | %b_%b_%b | %3b | %4b | %b_%b_%b", a[11:8], a[7:4], a[3:0], b[11:8], b[7:4], b[3:0], cin, cout, s[11:8], s[7:4], s[3:0]);
+    $monitor("%b_%b_%b | %b_%b_%b | %3b | %4b | %b_%b_%b", 
+    a[11:8], a[7:4], a[3:0], 
+    b[11:8], b[7:4], b[3:0], 
+    cin, cout, 
+    s[11:8], s[7:4], s[3:0]);
     a = 12'b0001_0000_0000; b = 12'b0010_0010_0101; cin = 0;
     #1 a = 12'b1001_1001_1001; b = 12'b1001_1001_1001; cin = 0;
     #1 cin = 1;
