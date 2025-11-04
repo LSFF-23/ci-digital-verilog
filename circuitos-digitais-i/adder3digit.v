@@ -1,4 +1,4 @@
-module adder1digit_fdd (a, b, cin, s, cout);
+module adder1digit (a, b, cin, s, cout);
 input [3:0] a, b;
 input cin;
 output [3:0] s;
@@ -20,9 +20,9 @@ output cout;
 
 wire c2, c1;
 
-adder1digit_fdd a1 (a[3:0], b[3:0], cin, s[3:0], c1);
-adder1digit_fdd a2 (a[7:4], b[7:4], c1, s[7:4], c2);
-adder1digit_fdd a3 (a[11:8], b[11:8], c2, s[11:8], cout);
+adder1digit a1 (a[3:0], b[3:0], cin, s[3:0], c1);
+adder1digit a2 (a[7:4], b[7:4], c1, s[7:4], c2);
+adder1digit a3 (a[11:8], b[11:8], c2, s[11:8], cout);
 
 endmodule
 

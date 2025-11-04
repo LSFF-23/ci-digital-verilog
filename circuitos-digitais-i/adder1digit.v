@@ -1,18 +1,4 @@
-module adder1digit_fdd (a, b, cin, s, cout);
-input [3:0] a, b;
-input cin;
-output [3:0] s;
-output cout;
-wire [4:0] partial_sum1, partial_sum2;
-
-assign partial_sum1 = a + b + cin;
-assign partial_sum2 = (partial_sum1 > 9)?(partial_sum1 + 6):(partial_sum1);
-assign s = partial_sum2[3:0];
-assign cout = partial_sum2[4];
-
-endmodule
-
-module adder1digit_comportamental (a, b, cin, s, cout);
+module adder1digit (a, b, cin, s, cout);
 input [3:0] a, b;
 input cin;
 output reg [3:0] s;
@@ -34,8 +20,7 @@ module adder1digit_tb;
     wire [3:0] s1, s2;
     wire cout1, cout2;
 
-    adder1digit_comportamental dut1 (a, b, cin, s1, cout1);
-    adder1digit_fdd dut2 (a, b, cin, s2, cout2);
+    adder1digit dut1 (a, b, cin, s1, cout1);
 
     initial begin
         $display("cin | a | b | cout1 | sum1 | cout2 | sum2 ");
