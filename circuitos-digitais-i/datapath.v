@@ -21,7 +21,7 @@ assign out = sel ? in1 : in0;
 
 endmodule
 
-module demux1x2_4bits (in, out1, out0, sel);
+module demux1x2_4bits (in, out0, out1, sel);
 input [3:0] in;
 output reg [3:0] out1, out0;
 input sel;
@@ -107,7 +107,7 @@ wire [3:0] demux_in, demux_out0, demux_out1, reg0_q, reg1_q, mux_out;
 register_4bits r1 (clk, demux_out0, reg0_q, rst);
 register_4bits r2 (clk, demux_out1, reg1_q, rst);
 register_file rf1 (reg_addr, clk, mux_out, demux_in, write_enable);
-demux1x2_4bits demux (demux_in, demux_out1, demux_out0, sel12);
+demux1x2_4bits demux (demux_in, demux_out0, demux_out1, sel12);
 mux2x1_4bits mux (dados, result, mux_out, sel21);
 ula u1 (reg0_q, reg1_q, carry_in, carry_out, result, opcode);
 
