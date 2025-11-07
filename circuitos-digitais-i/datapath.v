@@ -5,7 +5,7 @@ input clk, rst;
 
 always @(posedge clk or posedge rst) begin
     if (rst) q <= 0;
-    else if (we) q <= d;
+    else q <= d;
 end
 
 endmodule
@@ -19,9 +19,9 @@ assign out = sel ? in1 : in0;
 
 endmodule
 
-module demux1x2_4bits (in, out1, out2, sel);
+module demux1x2_4bits (in, out1, out0, sel);
 input [3:0] in;
-output [3:0] out1, out0;
+output reg [3:0] out1, out0;
 input sel;
 
 always @* begin
@@ -63,23 +63,24 @@ end
 
 endmodule
 
-module ula #(parameter N = 4) (a, b, cb_in, sel, result, cb_out)
-    input [N-1:0] a, b;
-    input cb_in;
-    output reg [N-1:0] result;
-    output reg cb_out;
+module ula (A, B, carry_in, carry_out, resultado, seletor);
+    input [3:0] A, B;
+    input carry_in;
+    output reg carry_out;
+    output reg [3:0] resultado;
+    input [2:0] seletor;
 
     always @(*) begin
-        cb_out = 0;
-        case (sel)
-            3'b000: {cb_out, result} = a + b + cb_in;
-            3'b001: {cb_out, result} = a + (~b + 1) + (~cb_in + 1);
-            3'b010: result = a & b;
-            3'b011: result = a | b;
-            3'b100: result = a ^ b;
-            3'b101: result = ~(a ^ b)
-            3'b111: result = ~a;
-            default: result = 0;
+        carry_out = 0;
+        case (seletor)
+            3'b000: {carry_out, resultado} = A + B + carry_in;
+            3'b001: {carry_out, resultado} = A + (~B + 1) + (~carry_in + 1);
+            3'b010: resultado = A & B;
+            3'b011: resultado = A | B;
+            3'b100: resultado = A ^ B;
+            3'b101: resultado = ~(A ^ B);
+            3'b111: resultado = ~A;
+            default: resultado = 0;
         endcase
     end
 
