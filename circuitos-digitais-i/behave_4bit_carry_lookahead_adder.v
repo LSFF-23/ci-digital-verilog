@@ -5,7 +5,7 @@ module behave_4bit_carry_lookahead_adder (
     output reg [3:0] Sum,
     output reg Cout
 );
-    //
+    // teste
     reg [3:0] P;
     reg [3:0] G;
     reg [3:0] C;
