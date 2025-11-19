@@ -1,9 +1,9 @@
-module latch_rs (r, s, qa, qb);
+module latch_sr (r, s, qa, qb);
 input r, s;
 output qa, qb;
 
-assign qa = ~(r | qb);
-assign qb = ~(s | qa);
+nor (qa, r, qb);
+nor (qb, s, qa);
 
 endmodule
 
@@ -11,7 +11,7 @@ module latch_tb;
 reg r, s;
 wire qa, qb;
 
-latch_rs dut (r, s, qa, qb);
+latch_sr dut (r, s, qa, qb);
 
 initial begin
     $display("r s q Q");
