@@ -6,7 +6,7 @@ assign qa = ~(r | qb);
 assign qb = ~(s | qa);
 
 endmodule
-// teste
+
 module latch_tb;
 reg r, s;
 wire qa, qb;
