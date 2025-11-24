@@ -7,7 +7,6 @@ module PISO_reg #(parameter num_bits = 8) (
     output data_out
 );
 
-// Internal register to hold the data
 reg [num_bits-1:0] reg_data = 0;
 
 // Assign the output data based on the direction
