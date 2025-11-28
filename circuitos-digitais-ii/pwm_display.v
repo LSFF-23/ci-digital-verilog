@@ -1,4 +1,33 @@
-module pwm_display (clk, rst, btn, pwm_out, btn_cnt);
+module segments_decoder (
+    input [3:0] dcba,
+    output reg [6:0] segments 
+);
+
+always @ (*) begin
+    case (dcba)
+        4'b0000: segments = 7'b0000001;
+        4'b0001: segments = 7'b1001111;
+        4'b0010: segments = 7'b0010010;
+        4'b0011: segments = 7'b0000110;
+        4'b0100: segments = 7'b1001100;
+        4'b0101: segments = 7'b0100100;
+        4'b0110: segments = 7'b0100000;
+        4'b0111: segments = 7'b0001111;
+        4'b1000: segments = 7'b0000000;
+        4'b1001: segments = 7'b0000100;
+        4'b1010: segments = 7'b0001000; // A
+        4'b1011: segments = 7'b1100000; // b
+        4'b1100: segments = 7'b0110001; // C
+        4'b1101: segments = 7'b1000010; // d
+        4'b1110: segments = 7'b0110000; // E
+        4'b1111: segments = 7'b0111000; // F
+        default: segments = 7'b1111111;
+    endcase
+end
+
+endmodule
+
+module pwm (clk, rst, btn, pwm_out, btn_cnt);
 localparam MAX_VALUE = 2_000_000;
 input clk, rst, btn;
 output reg pwm_out;
@@ -36,14 +65,28 @@ end
 
 endmodule
 
+module pwm_display (clk, rst, btn0, btn1, pwm_out0, pwm_out1, segments0, segments1);
+input clk, rst, btn0, btn1;
+output pwm_out0, pwm_out1;
+output [6:0] segments0, segments1;
+
+wire [3:0] btn_cnt0, btn_cnt1;
+
+pwm instance0 (clk, rst, btn0, pwm_out0, btn_cnt0);
+pwm instance1 (clk, rst, btn1, pwm_out1, btn_cnt1);
+segments_decoder decoder0 (btn_cnt0, segments0);
+segments_decoder decoder1 (btn_cnt1, segments1);
+
+endmodule
+
 module pwm_display_tb;
 localparam MAX_VALUE = 2_000_000;
-reg clk, rst, btn;
-wire pwm_out;
-wire [3:0] btn_cnt;
+reg clk, rst, btn0, btn1;
+wire pwm_out0, pwm_out1;
+wire [6:0] segments0, segments1;
 integer i;
     
-pwm_display dut (clk, rst, btn, pwm_out, btn_cnt);
+pwm_display dut (clk, rst, btn0, btn1, pwm_out0, pwm_out1, segments0, segments1);
 
 initial begin
     clk = 0;
@@ -51,15 +94,26 @@ initial begin
 end
 
 initial begin
-    rst = 0; btn = 0;
+    rst = 0; btn0 = 0; btn1 = 0;
     #25 rst = 1;
     #25 rst = 0;
     #(MAX_VALUE);
-    for (i = 1; i <= 10; i = i + 1) begin
-        #25 btn = 1;
-        #25 btn = 0;
-        #(MAX_VALUE);
-    end
+    #25 btn0 = 1;
+    #25 btn0 = 0;
+    #25 btn1 = 1;
+    #25 btn1 = 0;
+    #25 btn1 = 1;
+    #25 btn1 = 0;
+    #(MAX_VALUE);
+    #25 btn0 = 1;
+    #25 btn0 = 0;
+    #25 btn0 = 1;
+    #25 btn0 = 0;
+    #25 btn1 = 1;
+    #25 btn1 = 0;
+    #25 btn1 = 1;
+    #25 btn1 = 0;
+    #(MAX_VALUE);
     $finish(0);
 end
 
