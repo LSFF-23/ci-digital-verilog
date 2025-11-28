@@ -81,6 +81,7 @@ endmodule
 
 module pwm_display_tb;
 localparam MAX_VALUE = 2_000_000;
+localparam PWM_CYCLE = MAX_VALUE * 10;
 reg clk, rst, btn0, btn1;
 wire pwm_out0, pwm_out1;
 wire [6:0] segments0, segments1;
@@ -97,14 +98,14 @@ initial begin
     rst = 0; btn0 = 0; btn1 = 0;
     #25 rst = 1;
     #25 rst = 0;
-    #(MAX_VALUE);
+    #(PWM_CYCLE);
     #25 btn0 = 1;
     #25 btn0 = 0;
     #25 btn1 = 1;
     #25 btn1 = 0;
     #25 btn1 = 1;
     #25 btn1 = 0;
-    #(MAX_VALUE);
+    #(PWM_CYCLE);
     #25 btn0 = 1;
     #25 btn0 = 0;
     #25 btn0 = 1;
@@ -113,7 +114,7 @@ initial begin
     #25 btn1 = 0;
     #25 btn1 = 1;
     #25 btn1 = 0;
-    #(MAX_VALUE);
+    #(PWM_CYCLE);
     $finish(0);
 end
 
