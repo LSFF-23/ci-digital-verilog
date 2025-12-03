@@ -9,14 +9,12 @@ localparam LIG3 = 3;
 
 reg [1:0] state, next_state;
 
-
 always @(posedge clk or posedge rst) begin
     if (rst)
         state <= OFF;
     else
         state <= next_state;
 end
-
 
 always @* begin
     case (state)
