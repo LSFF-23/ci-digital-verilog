@@ -4,7 +4,7 @@ module pwm (
     input  wire [1:0]  duty,
     output reg         pwm_out
 );
-// teste
+
     reg [20:0] cnt;
     reg [20:0] duty_cnt;
 
