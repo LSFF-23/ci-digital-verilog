@@ -2,7 +2,7 @@ module fourone (clk, rst, in, out);
 localparam ZERO = 0;
 localparam FIRST = 1;
 localparam SECOND = 2;
-localparam THRID = 3;
+localparam THIRD = 3;
 localparam FOURTH = 4;
 
 input clk, rst, in;
@@ -12,9 +12,9 @@ reg [2:0] state, next_state;
 
 always @(posedge clk or posedge rst)
     if (rst)
-        state = ZERO;
+        state <= ZERO;
     else
-        state = next_state;
+        state <= next_state;
 
 always @*
     case (state)
