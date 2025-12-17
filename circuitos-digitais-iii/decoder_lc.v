@@ -36,7 +36,7 @@ assign data_out = sram[address];
 
 endmodule
 
-module decoder_lc (clk, we, address, din, dout);
+module decoder_rc (clk, we, address, din, dout);
 input clk, we;
 input [6:0] address;
 input [7:0] din;
@@ -61,11 +61,13 @@ assign dout = address[6:5] < 2 ? rom_wire[address[4:3]] : sram_wire[address[4:3]
 
 endmodule
 
-module decoder_lc_tb;
+module decoder_rc_tb;
 reg clk, we;
 reg [6:0] address;
 reg [7:0] din;
 wire [7:0] dout;
+
+decoder_rc dut (clk, we, address, din, dout);
 
 initial begin
     clk = 0;
