@@ -60,3 +60,20 @@ endgenerate
 assign dout = address[6:5] < 2 ? rom_wire[address[4:3]] : sram_wire[address[4:3]];
 
 endmodule
+
+module decoder_lc_tb;
+reg clk, we;
+reg [6:0] address;
+reg [7:0] din;
+wire [7:0] dout;
+
+initial begin
+    clk = 0;
+    forever #5 clk = !clk;
+end
+
+initial begin
+    
+end
+
+endmodule
