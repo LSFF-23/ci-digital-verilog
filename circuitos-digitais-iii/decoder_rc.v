@@ -1,22 +1,20 @@
-module rom8x8 #(parameter NOISE = 0) (clk, address, data_out);
+module rom8x8 #(parameter NOISE = 8'b0) (clk, address, data_out);
 input clk;
 input [2:0] address;
-output [7:0] data_out;
+output reg [7:0] data_out;
 
-reg [7:0] rom [0:7];
-
-initial begin
-    rom[0] = 1 + NOISE;
-    rom[1] = 1 + NOISE;
-    rom[2] = 2 + NOISE;
-    rom[3] = 3 + NOISE;
-    rom[4] = 5 + NOISE;
-    rom[5] = 8 + NOISE;
-    rom[6] = 13 + NOISE;
-    rom[7] = 21 + NOISE;
+always @(posedge clk) begin
+    case (address)
+        3'd0: data_out <= 8'd1 + NOISE;
+        3'd1: data_out <= 8'd1 + NOISE;
+        3'd2: data_out <= 8'd2 + NOISE;
+        3'd3: data_out <= 8'd3 + NOISE;
+        3'd4: data_out <= 8'd5 + NOISE;
+        3'd5: data_out <= 8'd8 + NOISE;
+        3'd6: data_out <= 8'd13 + NOISE;
+        3'd7: data_out <= 8'd21 + NOISE;
+    endcase
 end
-
-assign data_out = rom[address];
 
 endmodule
 
@@ -28,9 +26,7 @@ output [7:0] data_out;
 
 reg [7:0] sram [0:7];
 
-always @(posedge clk) begin
-    if (we) sram[address] <= data_in;
-end
+always @(posedge clk) if (we) sram[address] <= data_in;
 
 assign data_out = sram[address];
 
@@ -48,12 +44,12 @@ wire [7:0] sram_wire [0:7];
 generate
     genvar i;
     for (i = 0; i < 8; i = i + 1) begin: CONN_BLOCK
-        rom8x8#(i) rom (clk, address[2:0], rom_wire[i]);
-        sram8x8 sram (clk, (address[6:5] >= 2 && address[4:3] == i), address[2:0], din, sram_wire[i]);
+        rom8x8#(i[7:0]) rom (clk, address[2:0], rom_wire[i]);
+        sram8x8 sram (clk, (we & address[6] & ~(|(address[5:3] ^ i))), address[2:0], din, sram_wire[i]);
     end
 endgenerate
 
-assign dout = (address[6:5] < 2) ? rom_wire[address[4:3]] : sram_wire[address[4:3]];
+assign dout = address[6] ? sram_wire[address[5:3]] : rom_wire[address[5:3]];
 
 endmodule
 
