@@ -11,7 +11,7 @@ always @* begin
     A = 0; QM1 = 0;
     for (i = 0; i < N; i = i + 1) begin
         case ({Q[0], QM1})
-            2'b00, 2'b11: result = 0;
+            2'b00, 2'b11:;
             2'b01: A = A + M;
             2'b10: A = A - M;
         endcase
