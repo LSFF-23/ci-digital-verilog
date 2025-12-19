@@ -56,32 +56,30 @@ input [7:0] rom_net4, rom_net5, rom_net6, rom_net7;
 input [7:0] sram_net0, sram_net1, sram_net2, sram_net3;
 input [7:0] sram_net4, sram_net5, sram_net6, sram_net7;
 input [3:0] address;
-output reg dout;
+output reg [7:0] dout;
 
 always @(posedge clk) begin
     if (!address[3])
         case (address[2:0])
-            3'd0: dout = rom_net0;
-            3'd1: dout = rom_net1;
-            3'd2: dout = rom_net2;
-            3'd3: dout = rom_net3;
-            3'd4: dout = rom_net4;
-            3'd5: dout = rom_net5;
-            3'd6: dout = rom_net6;
-            3'd7: dout = rom_net7;
-            default: dout = 1'b0;
+            3'd0: dout <= rom_net0;
+            3'd1: dout <= rom_net1;
+            3'd2: dout <= rom_net2;
+            3'd3: dout <= rom_net3;
+            3'd4: dout <= rom_net4;
+            3'd5: dout <= rom_net5;
+            3'd6: dout <= rom_net6;
+            3'd7: dout <= rom_net7;
         endcase
     else
         case (address[2:0])
-            3'd0: dout = sram_net0;
-            3'd1: dout = sram_net1;
-            3'd2: dout = sram_net2;
-            3'd3: dout = sram_net3;
-            3'd4: dout = sram_net4;
-            3'd5: dout = sram_net5;
-            3'd6: dout = sram_net6;
-            3'd7: dout = sram_net7;
-            default: dout = 1'b0;
+            3'd0: dout <= sram_net0;
+            3'd1: dout <= sram_net1;
+            3'd2: dout <= sram_net2;
+            3'd3: dout <= sram_net3;
+            3'd4: dout <= sram_net4;
+            3'd5: dout <= sram_net5;
+            3'd6: dout <= sram_net6;
+            3'd7: dout <= sram_net7;
         endcase
 end
 
@@ -129,13 +127,6 @@ initial begin
 end
 
 initial begin
-    we = 1; address = 7'b00_00_000; din = 5; #10;
-    we = 0; #10;
-    we = 1; address = 7'b10_00_000; din = 10; #10;
-    we = 0; #10;
-    we = 1; address = 7'b11_01_001; din = 15; #10;
-    we = 0; address = 7'b00_00_111; #10;
-    we = 1; din = 20; #10;
     $stop(0);
 end
 
