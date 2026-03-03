@@ -1,6 +1,4 @@
-`timescale 1ns/1ps
-
-module comparador2bits (
+module comparator2bits (
     input [1:0] a, b,
     output y
 );
@@ -9,12 +7,11 @@ assign y = !(a^b);
 
 endmodule
 
-// comparador2bits_tb.v
 module comparador_tb;
 reg [1:0] a, b;
 wire y;
 
-comparador2bits dut(.a(a), .b(b), .y(y));
+comparator2bits dut(.a(a), .b(b), .y(y));
 
 always #1 b[0] = !b[0];
 always #2 b[1] = !b[1];

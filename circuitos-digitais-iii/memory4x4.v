@@ -1,18 +1,17 @@
-module rom8x8 #(parameter NOISE = 8'b0) (clk, address, data_out);
-input clk;
+module rom8x8 #(parameter [7:0] NOISE = 8'b0) (address, data_out);
 input [2:0] address;
 output reg [7:0] data_out;
 
-always @(posedge clk) begin
+always @* begin
     case (address)
-        3'd0: data_out <= 8'd1 + NOISE;
-        3'd1: data_out <= 8'd1 + NOISE;
-        3'd2: data_out <= 8'd2 + NOISE;
-        3'd3: data_out <= 8'd3 + NOISE;
-        3'd4: data_out <= 8'd5 + NOISE;
-        3'd5: data_out <= 8'd8 + NOISE;
-        3'd6: data_out <= 8'd13 + NOISE;
-        3'd7: data_out <= 8'd21 + NOISE;
+        3'd0: data_out = 8'd1 + NOISE;
+        3'd1: data_out = 8'd1 + NOISE;
+        3'd2: data_out = 8'd2 + NOISE;
+        3'd3: data_out = 8'd3 + NOISE;
+        3'd4: data_out = 8'd5 + NOISE;
+        3'd5: data_out = 8'd8 + NOISE;
+        3'd6: data_out = 8'd13 + NOISE;
+        3'd7: data_out = 8'd21 + NOISE;
     endcase
 end
 
@@ -32,25 +31,23 @@ assign data_out = sram[address];
 
 endmodule
 
-module write_enabler (clk, we, address, result);
-input clk, we;
+module write_enabler (we, address, result);
+input we;
 input [3:0] address;
 output reg [7:0] result;
 
-always @(posedge clk) begin
+always @* begin
     result <= 8'b0;
     result[address[2:0]] <= we & address[3];
 end
 
 endmodule
 
-module decoder_rc   (clk, 
-                    rom_net0, rom_net1, rom_net2, rom_net3, 
+module decoder_rc   (rom_net0, rom_net1, rom_net2, rom_net3, 
                     rom_net4, rom_net5, rom_net6, rom_net7,
                     sram_net0, sram_net1, sram_net2, sram_net3,
                     sram_net4, sram_net5, sram_net6, sram_net7,
                     address, dout);
-input clk;
 input [7:0] rom_net0, rom_net1, rom_net2, rom_net3;
 input [7:0] rom_net4, rom_net5, rom_net6, rom_net7;
 input [7:0] sram_net0, sram_net1, sram_net2, sram_net3;
@@ -58,7 +55,7 @@ input [7:0] sram_net4, sram_net5, sram_net6, sram_net7;
 input [3:0] address;
 output reg [7:0] dout;
 
-always @(posedge clk) begin
+always @* begin
     if (!address[3])
         case (address[2:0])
             3'd0: dout <= rom_net0;
@@ -95,9 +92,8 @@ wire [7:0] rom_wire [0:7];
 wire [7:0] sram_wire [0:7];
 wire [7:0] we_wire;
 
-write_enabler enabler (clk, we, address[6:3], we_wire);
-decoder_rc drc  (clk, 
-                rom_wire[0], rom_wire[1], rom_wire[2], rom_wire[3], 
+write_enabler enabler (we, address[6:3], we_wire);
+decoder_rc drc  (rom_wire[0], rom_wire[1], rom_wire[2], rom_wire[3], 
                 rom_wire[4], rom_wire[5], rom_wire[6], rom_wire[7],
                 sram_wire[0], sram_wire[1], sram_wire[2], sram_wire[3],
                 sram_wire[4], sram_wire[5], sram_wire[6], sram_wire[7],
@@ -106,7 +102,7 @@ decoder_rc drc  (clk,
 generate
     genvar i;
     for (i = 0; i < 8; i = i + 1) begin: CONN_BLOCK
-        rom8x8#(i[7:0]) rom (clk, address[2:0], rom_wire[i]);
+        rom8x8#(i[7:0]) rom (address[2:0], rom_wire[i]);
         sram8x8 sram (clk, we_wire[i], address[2:0], din, sram_wire[i]);
     end
 endgenerate
@@ -127,6 +123,20 @@ initial begin
 end
 
 initial begin
+    address = 8'b00_00_001; we = 1; din = 8'd0; #10
+    address = 8'b00_00_010; we = 0; din = 8'd0; #10
+    address = 8'b01_01_000; we = 1; din = 8'd0; #10
+    address = 8'b01_01_100; we = 0; din = 8'd0; #10
+    address = 8'b10_00_000; we = 1; din = 8'd5; #10
+    we = 0; #5
+    address = 8'b10_01_000; we = 1; din = 8'd10; #10
+    we = 0; #5
+    address = 8'b10_00_000; we = 0; din = 8'd15; #10
+    we = 0; #5
+    address = 8'b11_11_000; we = 1; din = 8'd15; #10
+    we = 0; #5
+    address = 8'b00_00_111; we = 0; din = 8'd0; #10
+    address = 8'b00_00_000; we = 0; din = 8'd0; #10
     $stop(0);
 end
 

@@ -1,5 +1,3 @@
-`timescale 1ns/1ps
-
 module counter_m100 (
     input clk_100M, rst,
     output reg [6:0] out
