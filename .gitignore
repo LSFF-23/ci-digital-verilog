@@ -8,6 +8,6 @@
 
 # questa files
 *.mpf
-*/work
+work/
 *.wlf
 *.cr.mti

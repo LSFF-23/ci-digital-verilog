@@ -12,11 +12,19 @@ end
 mdc dut (clk, rst_n, start, A, B, out, done);
 
 initial begin
+    start = 0;
     rst_n = 1; #10
     rst_n = 0; #10
-    A = 8'd20; B = 8'd30; #100
-    A = 8'd51; B = 8'd27; #100
-    
+    rst_n = 1; #30
+
+    A = 8'd20; B = 8'd30; #10
+    start = 1; #10
+    start = 0; #130
+
+    A = 8'd51; B = 8'd27; #10
+    start = 1; #10
+    start = 0; #130
+    $stop(0);
 end
 
 endmodule

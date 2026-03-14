@@ -13,14 +13,21 @@ localparam FINISHED = 2'b10;
 
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-        done <= 0;
         state <= IDLE;
-        A_aux <= A;
-        B_aux <= B;
+        out <= 0;
+        done <= 0;
     end else begin
         case (state)
-            IDLE: state <= (start) ? SUBTRACT : IDLE;
+            IDLE: begin
+                state <= IDLE;
+                if (start) begin
+                    state <= SUBTRACT;
+                    A_aux <= A;
+                    B_aux <= B;
+                end
+            end
             SUBTRACT: begin
+                state <= SUBTRACT;
                 if (A_aux > B_aux)
                     A_aux <= A_aux - B_aux;
                 else if (B_aux > A_aux)
@@ -29,10 +36,11 @@ always @(posedge clk or negedge rst_n) begin
                     state <= FINISHED;
             end
             FINISHED: begin
+                state <= IDLE;
                 done <= 1;
                 out <= A_aux;
-                state <= IDLE;
             end
+            default: state <= IDLE;
         endcase
     end
 end
