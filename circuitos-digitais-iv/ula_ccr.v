@@ -12,7 +12,7 @@ wire nibble_carry = nibble_sum[4];
 
 wire [8:0] sub = {A[7], A} - {B[7], B};
 
-wire [15:0] mult = $signed(A) * $signed(B);
+wire [15:0] mult = A * B;
 
 wire [7:0] div = (B != 0) ? A / B : 8'b0;
 
