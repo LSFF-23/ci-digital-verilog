@@ -1,6 +1,3 @@
-#cmdkey /delete:LegacyGeneric:target=git:https://github.com
-#set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
-
 # ivlog files
 *.out
 .dvt
@@ -11,3 +8,7 @@
 work/
 *.wlf
 *.cr.mti
+
+# document files
+*.pdf
+*.png
