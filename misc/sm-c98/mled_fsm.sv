@@ -9,7 +9,8 @@ module mled_fsm (
 enum logic [3:0] {
     IDLE,
     CAPTURE,
-    PREPARATION
+    PREPARATION,
+    LOAD_COUNTER
 } state, next_state;
 
 always_ff @(posedge clk)
@@ -23,10 +24,12 @@ always_comb begin
     case (state)
         IDLE: if (start) next_state = CAPTURE;
         CAPTURE: next_state = PREPARATION;
+        PREPARATION: if (bus.prep_rdy) next_state = LOAD_COUNTER;
     endcase
 end
 
 assign bus.capt_en = state == CAPTURE;
-assign bus.prep_en = state == PREPARATION;
+assign bus.load_in = state == PREPARATION;
+assign bus.counter_ld = state == LOAD_COUNTER;
 
 endmodule

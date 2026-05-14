@@ -1,18 +1,24 @@
 interface mled_interface;
-logic capt_en;
+logic load_in;
 logic move_en;
 logic prep_en;
+logic prep_rdy;
+logic counter_ld;
 
 modport fsm (
-    output  capt_en,
+    input   prep_rdy,
+    output  load_in,
             move_en,
-            prep_en
+            prep_en,
+            counter_ld
 );
 
 modport dp (
-    input   capt_en,
-            move_en
-            prep_en
+    output  prep_rdy,
+    input   load_in,
+            move_en,
+            prep_en,
+            counter_ld
 );
 
 endinterface
