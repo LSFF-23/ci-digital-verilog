@@ -12,3 +12,8 @@ work/
 # document files
 *.pdf
 *.png
+
+# others
+*.vcd
+transcript
+*.vstf

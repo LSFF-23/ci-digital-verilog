@@ -2,31 +2,37 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "run-verilog",
+            "label": "Slang Lint Folder",
             "type": "shell",
-            
-            // 1. Força o uso do cmd.exe, que é mais previsível com aspas
-            "options": {
-                "shell": {
-                    "executable": "cmd.exe",
-                    "args": [
-                        "/c" // Necessário para que o CMD execute uma string de comando e feche
-                    ]
-                }
+            "command": "slang",
+            "args": [
+                "--std", "latest",
+                "-I", "${fileDirname}",
+                "${fileDirname}/*.sv",
+                "${fileDirname}/*.v"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
             },
-            
-            // 2. Comando: Usamos aspas DUPLAS (") para envolver os caminhos com variáveis
-            // do VS Code, e encadeamos os comandos com o operador '&&' do CMD.
-            "command": "iverilog -o \"${fileDirname}/${fileBasenameNoExtension}.out\" \"${file}\" && vvp \"${fileDirname}/${fileBasenameNoExtension}.out\"",
-            
-            "group": "build",
-            
             "presentation": {
+                "echo": true,
                 "reveal": "always",
-                "panel": "new"
+                "focus": false,
+                "panel": "shared"
             },
-            
-            "problemMatcher": []
+            "problemMatcher": {
+                "owner": "slang",
+                "fileLocation": "absolute",
+                "pattern": {
+                    "regexp": "^([^:]+):(\\d+):(\\d+):\\s+(error|warning):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
         }
     ]
 }
