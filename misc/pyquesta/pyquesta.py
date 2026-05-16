@@ -2,8 +2,7 @@
 """
 pyquesta - Lança o Questa GUI com compilação automática,
 adiciona sinais à janela de onda e executa "run -all".
-Enquanto a simulação roda, exibe o transcript em tempo real
-no terminal, omitindo as linhas de copyright/versão.
+Com -c, executa em modo console (sem GUI), exibindo apenas o transcript filtrado.
 """
 
 import argparse
@@ -24,64 +23,58 @@ def find_top_level():
     files.sort()
     return files[0] if files else None
 
-def tail_transcript_in_real_time(transcript_file='transcript'):
-    """
-    Segue o arquivo transcript, imprimindo novas linhas no terminal
-    após pular o cabeçalho de copyright/versão.
-    """
+def print_full_transcript(transcript_file='transcript'):
+    """Imprime todo o conteúdo do arquivo transcript (ignorando cabeçalho)."""
     if not os.path.isfile(transcript_file):
-        print("[pyquesta] Aguardando criação do transcript...")
-        # Aguarda até o arquivo aparecer (com timeout)
-        for _ in range(100):
-            if os.path.isfile(transcript_file):
-                break
-            time.sleep(0.1)
-        else:
-            print("[pyquesta] Transcript não foi criado.")
-            return
+        print("[pyquesta] Arquivo transcript não encontrado.")
+        return
 
-    # Lê o arquivo a partir do início para pular o cabeçalho
     with open(transcript_file, 'r', encoding='utf-8', errors='ignore') as f:
-        # Avança até a primeira linha útil (linha que começa com '# vsim' ou não é comentário de copyright)
-        while True:
-            pos = f.tell()
-            line = f.readline()
-            if not line:
-                # Fim do arquivo (ainda não há conteúdo útil), recua e tenta de novo
-                f.seek(pos)
-                break
-            # Linhas de cabeçalho: começam com '# ' e contêm marcadores típicos
-            if line.startswith('#') and (
-                '//' in line or
-                'Reading pref.tcl' in line or
-                'Unpublished' in line or
-                'Copyright' in line or
-                'Version' in line or
-                'Questa' in line
-            ):
-                continue
-            else:
-                # Primeira linha útil encontrada: imprime-a e sai do loop
-                print(line.rstrip('\n'))
-                break
+        lines = f.readlines()
 
-        # Agora segue as novas linhas em tempo real
-        while True:
-            line = f.readline()
-            if line:
-                print(line.rstrip('\n'))
-            else:
-                # Se o processo do vsim já terminou e não há mais linhas, sai
-                if proc.poll() is not None:
-                    # Lê qualquer resto que tenha sobrado
-                    remaining = f.read()
-                    if remaining:
-                        print(remaining.rstrip('\n'))
-                    break
-                time.sleep(0.2)  # Pequena pausa para não consumir CPU
+    # Pular linhas de cabeçalho (copyright, versão, etc.)
+    start_idx = 0
+    for i, line in enumerate(lines):
+        if line.startswith('#') and (
+            '//' in line or
+            'Reading pref.tcl' in line or
+            'Unpublished' in line or
+            'Copyright' in line or
+            'Version' in line or
+            'Questa' in line
+        ):
+            continue
+        else:
+            start_idx = i
+            break
+
+    # Imprimir do início real até o fim
+    print(''.join(lines[start_idx:]).rstrip())
+
+def tail_vsim_output(proc):
+    """
+    Lê a saída do processo vsim (modo console) linha a linha,
+    filtra o cabeçalho indesejado e imprime apenas as linhas relevantes.
+    """
+    while True:
+        line = proc.stdout.readline()
+        if not line:
+            # Se não há mais dados, verifica se o processo terminou
+            if proc.poll() is not None:
+                break
+            continue
+        line = line.decode('utf-8', errors='ignore').rstrip()
+        # Pula linhas de cabeçalho e mensagens de carga
+        if line.startswith('#') and any(k in line for k in [
+            '//', 'Reading pref.tcl', 'Unpublished', 'Copyright',
+            'Version', 'Questa', 'vsim', 'Loading'
+        ]):
+            continue
+        # Imprime linhas não vazias (opcional)
+        if line.strip():
+            print(line)
 
 def main():
-    global proc  # Para ser acessível na função tail
     parser = argparse.ArgumentParser(
         description='Simula com Questa abrindo GUI e formas de onda automaticamente.'
     )
@@ -89,9 +82,12 @@ def main():
                         help='Arquivo top-level .v ou .sv (padrão: primeiro *_tb.v/sv)')
     parser.add_argument('-s', '--signals',
                         help='Sinais separados por vírgula, ex.: dut.clk,dut.a')
+    parser.add_argument('-c', '--console', action='store_true',
+                        help='Modo console: compila e simula sem GUI, exibindo apenas o transcript.')
+
     args = parser.parse_args()
 
-    # Determina o arquivo top-level
+    # Determina o top-level
     top_file = args.input
     if top_file is None:
         top_file = find_top_level()
@@ -105,31 +101,32 @@ def main():
             sys.exit(1)
         print(f"Top-level: {top_file}")
 
-    # Nome do módulo = nome do arquivo sem extensão
     top_module = pathlib.Path(top_file).stem
     print(f"Módulo top: {top_module}")
 
-    # Comando para adicionar formas de onda
-    if args.signals:
-        sig_list = [s.strip() for s in args.signals.split(',') if s.strip()]
-        if not sig_list:
-            print("Aviso: -s vazio, usando '*'.", file=sys.stderr)
-            add_wave_cmd = "add wave *"
-        else:
-            add_wave_cmd = "add wave " + " ".join(sig_list)
+    # Monta o conteúdo do script .do conforme o modo
+    if args.console:
+        # Modo console: apenas executa e sai
+        do_content = "run -all\nquit -f\n"
     else:
-        # Default: tenta dut/*, depois uut/*, senão *
-        add_wave_cmd = (
-            "if {[catch {add wave dut/*}]} {\n"
-            "    if {[catch {add wave uut/*}]} {\n"
-            "        add wave *\n"
-            "    }\n"
-            "}"
-        )
+        # Modo GUI: ondas e zoom
+        if args.signals:
+            sig_list = [s.strip() for s in args.signals.split(',') if s.strip()]
+            if not sig_list:
+                print("Aviso: -s vazio, usando '*'.", file=sys.stderr)
+                add_wave_cmd = "add wave *"
+            else:
+                add_wave_cmd = "add wave " + " ".join(sig_list)
+        else:
+            add_wave_cmd = (
+                "if {[catch {add wave dut/*}]} {\n"
+                "    if {[catch {add wave uut/*}]} {\n"
+                "        add wave *\n"
+                "    }\n"
+                "}"
+            )
 
-    # Conteúdo do script Tcl que o vsim executará
-    do_content = f"""\
-# Gerado automaticamente por pyquesta
+        do_content = f"""\
 view wave
 {add_wave_cmd}
 run -all
@@ -143,7 +140,7 @@ wave zoom full
         do_file = tmp.name
 
     try:
-        # Compilação: separar .v e .sv para usar -sv apenas em .sv
+        # Compilação
         v_files = glob.glob('*.v')
         sv_files = glob.glob('*.sv')
 
@@ -157,22 +154,27 @@ wave zoom full
             print("Aviso: nenhum arquivo .v/.sv encontrado no diretório.",
                   file=sys.stderr)
 
-        # Lança o vsim com GUI, preservando todos os sinais para debug
-        vsim_cmd = ['vsim', '-voptargs=+acc', '-gui', '-do', do_file, top_module]
-        print(f"Iniciando simulação com Questa para '{top_module}'...")
-        print("Transcript em tempo real:")
-        proc = subprocess.Popen(vsim_cmd)   # Processo em background
-
-        # Exibe o transcript em tempo real até a GUI fechar
-        tail_transcript_in_real_time()
+        # Executa a simulação conforme o modo
+        if args.console:
+            vsim_cmd = ['vsim', '-c', '-do', do_file, top_module]
+            print(f"Iniciando simulação em console para '{top_module}'...")
+            proc = subprocess.Popen(vsim_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            tail_vsim_output(proc)
+            proc.wait()
+        else:
+            vsim_cmd = ['vsim', '-voptargs=+acc', '-gui', '-do', do_file, top_module]
+            print(f"Iniciando simulação com Questa para '{top_module}'...")
+            proc = subprocess.Popen(vsim_cmd)
+            proc.wait()
+            print("\n--- Transcript da simulação ---")
+            print_full_transcript()
+            print("--- Fim do transcript ---")
 
     finally:
-        # Remove o arquivo temporário
         try:
             os.unlink(do_file)
         except OSError:
             pass
-
 
 if __name__ == "__main__":
     main()
