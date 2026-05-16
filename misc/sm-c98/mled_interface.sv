@@ -1,35 +1,41 @@
-interface mled_interface;
+interface mled_interface (
+    input clk,
+    input rst
+);
+
 logic load_en;
 logic move_en;
 logic ei_en;
+logic run_en;
 logic eo_en;
+logic done_st;
 
 logic dc_zero;
-logic ei_zero;
-logic eo_zero;
 logic sc_zero;
 
 modport fsm (
+    input   clk,
+            rst,
     output  load_en,
             move_en,
             ei_en,
+            run_en,
             eo_en,
-            sc_ld,
+            done_st,
     input   dc_zero,
-            ei_zero,
-            eo_zero
             sc_zero
 );
 
 modport dp (
+    input   clk,
+            rst,
     input   load_en,
             move_en,
             ei_en,
+            run_en,
             eo_en,
-            sc_ld,
+            done_st,
     output  dc_zero,
-            ei_zero,
-            eo_zero,
             sc_zero
 );
 
