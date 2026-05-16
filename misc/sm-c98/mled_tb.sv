@@ -32,7 +32,7 @@ initial begin
     @(posedge clk);
     
     repeat (10) begin
-        new_pos = $random(seed);
+        new_pos = $random(seed) % 24;
         start = 1;
         @(posedge clk);
         start = 0;
