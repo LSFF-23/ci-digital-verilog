@@ -6,7 +6,12 @@ logic [4:0] new_pos;
 logic [23:0] leds;
 logic done;
 
-mled_top#(1_000) dut (
+localparam int CLOCK_F = 1200;
+localparam int DIVIDER_F = CLOCK_F / 24;
+localparam int MAX_DIVF = DIVIDER_F * 8;
+localparam int MAX_CYCLES = 6 + 2*(8+7+6+5+4+3+2+1)*DIVIDER_F+104*DIVIDER_F;
+
+mled_top#(.CLOCK_F(CLOCK_F)) dut (
     clk,
     rst,
     start,
@@ -26,13 +31,16 @@ initial begin
         $finish(0);
     end
 
-    rst = 1; start = 0; new_pos = 5'd0; seed = 42;
+    $display("Max Cycles Estimative: %d", MAX_CYCLES);
+    $fdisplay(file, "Max Cycles Estimative: %d", MAX_CYCLES);
+
+    rst = 1; start = 0; new_pos = 5'd0; seed = 11;
     @(posedge clk);
     rst = 0;
     @(posedge clk);
     
     repeat (10) begin
-        new_pos = $random(seed) % 24;
+        new_pos = $random(seed) % 5'd24;
         start = 1;
         @(posedge clk);
         start = 0;

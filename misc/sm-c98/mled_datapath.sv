@@ -66,17 +66,17 @@ always_ff @(posedge clk) begin
         divider_sync <= '0;
     end else begin
         if (bus.ei_en) begin
-            divc_la <= '0;
+            divc_la <= DIV_SPD[7];
             divider_counter <= DIV_SPD[7];
             shift_counter <= 7'd7;
             divider_sync <= 2'b01;
         end else if (bus.run_en) begin
-            divc_la <= '0;
+            divc_la <= DIVIDER_F[DIV_WIDTH-1:0];
             divider_counter <= DIVIDER_F[DIV_WIDTH-1:0];
             shift_counter <= shift_upper_limit;
             divider_sync <= 2'b00;
         end else if (bus.eo_en) begin
-            divc_la <= '0;
+            divc_la <= SPD_DIV[7];
             divider_counter <= SPD_DIV[7];
             shift_counter <= 7'd7;
             divider_sync <= 2'b10;
@@ -85,7 +85,8 @@ always_ff @(posedge clk) begin
         end else begin
             divc_la <= divider_counter - 2'b10;
             divider_counter <= divider_counter - 1'b1;
-            if (divc_la[DIV_WIDTH-1]) begin
+            if (divc_la[DIV_WIDTH]) begin
+                divc_la <= DIVIDER_F[DIV_WIDTH-1:0];
                 shift_counter <= shift_counter - 1'b1;
                 if (divider_sync[0])
                     divider_counter <= DIV_SPD[shift_counter[2:0]];
@@ -98,7 +99,7 @@ always_ff @(posedge clk) begin
     end
 end
 
-assign bus.dc_zero = divc_la[DIV_WIDTH-1];
+assign bus.dc_zero = divc_la[DIV_WIDTH];
 assign bus.sc_zero = shift_counter == '0;
 assign leds = leds_reg;
 
