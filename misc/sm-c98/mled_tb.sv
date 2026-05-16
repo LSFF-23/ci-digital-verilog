@@ -6,10 +6,10 @@ logic [4:0] new_pos;
 logic [23:0] leds;
 logic done;
 
-localparam int CLOCK_F = 1200;
+localparam int CLOCK_F = 4800;
 localparam int DIVIDER_F = CLOCK_F / 24;
 localparam int MAX_DIVF = DIVIDER_F * 8;
-localparam int MAX_CYCLES = 6 + 2*(8+7+6+5+4+3+2+1)*DIVIDER_F+104*DIVIDER_F;
+localparam int MAX_CYCLES = 126 + 2*(8+7+6+5+4+3+2+1)*DIVIDER_F+104*DIVIDER_F;
 
 mled_top#(.CLOCK_F(CLOCK_F)) dut (
     clk,
