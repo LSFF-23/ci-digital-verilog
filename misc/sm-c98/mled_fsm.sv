@@ -7,6 +7,7 @@ module mled_fsm (
 wire clk = bus.clk;
 wire rst = bus.rst;
 
+// hardwired states, following logic depends on bit positions
 enum logic [3:0] {
     IDLE = 4'b0000,
     CAPTURE = 4'b0001,
@@ -41,7 +42,7 @@ always_comb begin
 end
 
 assign bus.load_en = state == CAPTURE;
-assign bus.move_en = bus.dc_zero && state[3];
+assign bus.move_en = state[3];
 assign bus.ei_en = state == EI_KICK;
 assign bus.eo_en = state == EO_KICK;
 assign bus.run_en = state == RUN_KICK;

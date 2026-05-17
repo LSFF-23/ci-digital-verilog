@@ -28,7 +28,7 @@ logic [23:0] leds_reg;
 always_ff @(posedge clk)
     if (rst)
         leds_reg <= 24'b1;
-    else if (bus.move_en)
+    else if (bus.move_en && bus.dc_zero)
         leds_reg <= {leds_reg[22:0], leds_reg[23]};
 
 logic [4:0] new_pos_reg, old_pos_reg;
@@ -85,7 +85,7 @@ always_ff @(posedge clk) begin
         end else begin
             divc_la <= divider_counter - 2'b10;
             divider_counter <= divider_counter - 1'b1;
-            if (divc_la[DIV_WIDTH]) begin
+            if (bus.dc_zero) begin
                 divc_la <= DIVIDER_F[DIV_WIDTH-1:0];
                 shift_counter <= shift_counter - 1'b1;
                 if (divider_sync[0])
